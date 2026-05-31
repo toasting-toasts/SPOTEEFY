@@ -1,0 +1,40 @@
+drop database if exists spoteefy;
+CREATE DATABASE IF NOT EXISTS spoteefy;
+USE spoteefy;
+--drop table audio_files;
+--drop TABLE users;
+
+CREATE TABLE IF NOT EXISTS users (
+    id                 INT AUTO_INCREMENT PRIMARY KEY,
+    username           VARCHAR(255) NOT NULL UNIQUE,
+    email              VARCHAR(255) NOT NULL UNIQUE,
+    password_hash      VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS audio_files (
+    id             INT AUTO_INCREMENT PRIMARY KEY,
+    sound_filepath VARCHAR(255) NOT NULL,
+    cover_filepath VARCHAR(255) NOT NULL,
+    upload_time    DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    name           VARCHAR(255) NOT NULL,
+    duration_s     INT NOT NULL,
+    author         VARCHAR(255) NOT NULL,
+    description    TEXT NOT NULL,
+    rating         INT NOT NULL DEFAULT 0,
+    plays          INT DEFAULT 0,
+    views          INT DEFAULT 0,
+
+    uploader_id INT NOT NULL,
+    FOREIGN KEY (uploader_id) REFERENCES users(id)
+);
+
+CREATE TABLE favourite_songs (
+    user_id INT NOT NULL,
+    song_id INT NOT NULL,
+
+    PRIMARY KEY(user_id, song_id),
+
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(song_id) REFERENCES audio_files(id)
+);
