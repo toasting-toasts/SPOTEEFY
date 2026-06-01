@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
+const music_metadata = require("music-metadata");
 require("dotenv").config();
 
 const JWT_SECRET = process.env.JWT_SECRET || "key";
@@ -139,6 +140,9 @@ async function uploadQuery(files, body, user){
     const audioFile = files.audio[0];
     const coverFile = files.cover ? files.cover[0] : null;
 
+    const metadata = await music_metadata.parseFile(audioFile.path);
+    const duration = Math.round(metadata.format.duration);
+
     const audioPath = `/audio/${audioFile.filename}`;
     const coverPath = coverFile ? `/covers/${coverFile.filename}` : "/covers/default_cover.jpg";
 
@@ -146,8 +150,8 @@ async function uploadQuery(files, body, user){
 
     try {
         const [result] = await db.query(
-            "INSERT INTO tracks (user_id, title, author, description, audio_path, cover_path) VALUES (?, ?, ?, ?, ?, ?)", 
-            [user.id, title, author, description, audioPath, coverPath]
+            "INSERT INTO tracks (uploader_id, title, author, description, audio_path, cover_path, duration_s) VALUES (?, ?, ?, ?, ?, ?, ?)", 
+            [user.id, title, author, description, audioPath, coverPath, duration]
         );
         return {message: "Files uploaded successfully", trackId: result.insertId};
     } catch (err) {
@@ -182,7 +186,7 @@ app.post("/auth/login", async (req, res) => {
     const {username, password} = req.body;
     const validationError = validateLogin(username, password);
     if(validationError) return res.status(400).json(validationError)
-
+    
     const loginResult = await loginQuery(username, password);
     if(loginResult.error) return res.status(401).json(loginResult);
 

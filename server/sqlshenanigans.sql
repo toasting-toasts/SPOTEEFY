@@ -1,7 +1,8 @@
+-- Active: 1780235224396@@127.0.0.1@3306@spoteefy
 drop database if exists spoteefy;
 CREATE DATABASE IF NOT EXISTS spoteefy;
 USE spoteefy;
---drop table audio_files;
+drop table tracks;
 --drop TABLE users;
 
 CREATE TABLE IF NOT EXISTS users (
@@ -11,18 +12,17 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash      VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS audio_files (
+CREATE TABLE IF NOT EXISTS tracks (
     id             INT AUTO_INCREMENT PRIMARY KEY,
-    sound_filepath VARCHAR(255) NOT NULL,
-    cover_filepath VARCHAR(255) NOT NULL,
+    audio_path VARCHAR(255) NOT NULL,
+    cover_path VARCHAR(255) NOT NULL,
     upload_time    DATETIME DEFAULT CURRENT_TIMESTAMP,
 
-    name           VARCHAR(255) NOT NULL,
+    title           VARCHAR(255) NOT NULL,
     duration_s     INT NOT NULL,
     author         VARCHAR(255) NOT NULL,
     description    TEXT NOT NULL,
     rating         INT NOT NULL DEFAULT 0,
-    plays          INT DEFAULT 0,
     views          INT DEFAULT 0,
 
     uploader_id INT NOT NULL,
@@ -36,5 +36,5 @@ CREATE TABLE favourite_songs (
     PRIMARY KEY(user_id, song_id),
 
     FOREIGN KEY(user_id) REFERENCES users(id),
-    FOREIGN KEY(song_id) REFERENCES audio_files(id)
+    FOREIGN KEY(song_id) REFERENCES tracks(id)
 );

@@ -1,6 +1,6 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link} from "react-router-dom";
 import {AuthProvider} from "../store/AuthProvider";
-import {useContext} from "react";
+import { useContext, useState} from "react";
 import { AuthContext } from "../store/AuthProvider";
 import { Navigate } from "react-router-dom";
 
@@ -10,21 +10,24 @@ import SubmitAudioPage from "../pages/SubmitAudioPage";
 import HomePage from "../pages/HomePage";
 
 function ProtectedRoute({ children }) {
-    const { token } = useContext(AuthContext);
-    if (!token) return (<Navigate to="/login" />);
+    const { token, loading } = useContext(AuthContext);
+    if (loading) return <p>Loading...</p>;
+    if (!token) return <Navigate to="/login" />;
     return children;
 }
 
 export default function App() {
+    const [loading, setLoading] = useState(true);
+
     return (
         <AuthProvider>
         <BrowserRouter>
 
         <p>temporary ↆ</p>
-        <a href="/login">login</a>
-        <a href="/register"> register</a>
-        <a href="/submit-audio"> submit audio</a>
-        
+        <Link to="/login">login</Link>--
+        <Link to="/register">register</Link>--
+        <Link to="/submit-audio">submit audio</Link>
+
             <Routes>
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />

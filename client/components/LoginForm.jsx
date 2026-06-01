@@ -12,8 +12,13 @@ export default function LoginPage() {
         e.preventDefault();
         const result = await login(localUsername, localPassword);
 
-        if (result.error) alert (result.error);
-        else alert(result.message);
+        if (result.error) {
+            alert(result.error); 
+            return;
+        } else {
+            alert(result.message);
+            navigate("/");
+        }
     }
 
     return (<>
