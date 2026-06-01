@@ -1,9 +1,14 @@
+import { AuthContext } from "../store/AuthProvider";
+import { useContext } from "react";
+
 export default function SubmitAudioPage() {
+    const { token } = useContext(AuthContext);
     const handleSubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
-        const result = await fetch("/audio/submit", {
+        const result = await fetch("http://localhost:3000/audio/submit", {
             method: "POST",
+            headers: {"authorization": `Bearer ${token}`},
             body: formData
         });
     }
