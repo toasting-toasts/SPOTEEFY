@@ -1,9 +1,9 @@
 import LoginForm from "../components/LoginForm";
 import { useContext } from "react";
-import { AuthContext } from "../store/AuthProvider";
+import { Context } from "../store/ContextProvider";
 
 export default function LoginPage() {
-    const { token, user } = useContext(AuthContext);
+    const { token, user } = useContext(Context);
     return (
         <>
         {token&&user ? <p>Already logged in as {user.username}!</p> : <LoginForm />}

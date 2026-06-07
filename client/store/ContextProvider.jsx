@@ -1,8 +1,8 @@
 import {createContext, useState, useEffect} from "react";
 
-export const AuthContext = createContext(null);
+export const Context = createContext(null);
 
-export function AuthProvider({children}) {
+export function ContextProvider({children}) {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -83,9 +83,49 @@ export function AuthProvider({children}) {
         return data;
     }
 
+    const fetchTracksData = async (start, amount) => {
+        const response = await fetch(
+            `http://localhost:3000/tracks?start=${start}&amount=${amount}`,
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            }
+        );
+        if (!response.ok) {
+            console.error("Failed to fetch tracks");
+            return;
+        }
+        const data = await response.json();
+        return data.tracks;
+    }
+
+    const submitTrack = async (formData) => {
+        const response = await fetch(
+            "http://localhost:3000/audio/submit",
+            {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                },
+                body: formData
+            }
+        );
+        if (!response.ok) {
+            throw new Error("Failed to submit track");
+        }
+        const data = await response.json();
+        return data;
+    }
+
     return (
-        <AuthContext.Provider value={{token, user, loading, login, logout, register}}>
+        <Context.Provider value={{
+            token, user, loading, 
+            login, logout, register, fetchTracksData, submitTrack
+        }}>
             {children}
-        </AuthContext.Provider>
+        </Context.Provider>
     )
 }

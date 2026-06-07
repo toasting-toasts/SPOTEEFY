@@ -1,8 +1,8 @@
--- Active: 1780235224396@@127.0.0.1@3306@spoteefy
+-- Active: 1780838486428@@127.0.0.1@3306@calendar
 drop database if exists spoteefy;
 CREATE DATABASE IF NOT EXISTS spoteefy;
 USE spoteefy;
-drop table tracks;
+drop table if exists tracks;
 --drop TABLE users;
 
 CREATE TABLE IF NOT EXISTS users (

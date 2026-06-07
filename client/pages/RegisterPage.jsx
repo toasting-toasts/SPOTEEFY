@@ -1,10 +1,10 @@
 import {useState} from "react";
-import {AuthContext} from "../store/AuthProvider";
+import {Context} from "../store/ContextProvider";
 import {useContext} from "react";
 import RegisterForm from "../components/RegisterForm";
 
 export default function RegisterPage() {
-    const {token, user} = useContext(AuthContext);
+    const {token, user} = useContext(Context);
 
     return (
         <>

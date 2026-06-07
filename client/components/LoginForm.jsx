@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useContext } from "react";
-import { AuthContext } from "../store/AuthProvider";
+import { Context } from "../store/ContextProvider";
 import {Link} from "react-router-dom";
 
 export default function LoginPage() {
-    const { login } = useContext(AuthContext);
+    const { login } = useContext(Context);
     const [localUsername, setLocalUsername] = useState("");
     const [localPassword, setLocalPassword] = useState("");
     

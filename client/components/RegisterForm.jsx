@@ -1,9 +1,9 @@
 import { useState, useContext } from "react";
-import { AuthContext } from "../store/AuthProvider";
+import { Context } from "../store/ContextProvider";
 import {Link, useNavigate} from "react-router-dom";
 
 export default function RegisterForm(){
-    const {register} = useContext(AuthContext);
+    const {register} = useContext(Context);
     const navigate = useNavigate();
     const [localEmail, setLocalEmail] = useState("");
     const [localUsername, setLocalUsername] = useState("");

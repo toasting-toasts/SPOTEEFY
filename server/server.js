@@ -60,7 +60,7 @@ function validateRegister(email, username, password){
         return {error: "Invalid email format"}
     }
     if(!password.match(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/)){
-        return {error: "Password must contain at least one letter and one number"}
+        return {error: "Password must contain at least one letter and one number and be at least 6 digits long"}
     }
     return null;
 }
@@ -132,7 +132,7 @@ async function registerQuery(email, username, password){
         if (err.code === "ER_DUP_ENTRY") {
             return {error: "Username or email already exists"};
         }
-        return {error: "Internal server error"};
+        return {error: `Internal db error ${err}`};
     }
 }
 
