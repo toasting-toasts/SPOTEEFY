@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useContext } from "react";
 import { Context } from "../store/ContextProvider";
-import {Link} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
+    const navigate = useNavigate();
     const { login } = useContext(Context);
     const [localUsername, setLocalUsername] = useState("");
     const [localPassword, setLocalPassword] = useState("");

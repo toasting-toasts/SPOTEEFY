@@ -207,6 +207,21 @@ app.post(
     return res.json(uploadResult)
 })
 
+app.get("/tracks", async (req, res) => {
+    const start = parseInt(req.query.start) || 0;
+    const amount = parseInt(req.query.amount) || 20;
+
+    try {
+        const [tracks] = await db.query(
+            "SELECT id, title, author, cover_path, duration_s, views, rating FROM tracks LIMIT ? OFFSET ?",
+            [amount, start]
+        );
+        return res.json({tracks});
+    } catch (err) {
+        return res.status(500).json({error: "Internal server error"});
+    }
+});
+
 app.get("/auth/me", authenticateToken, async (req, res) => {
     const user = req.user;
     return res.json({username: user.username, id: user.id});
