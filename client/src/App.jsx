@@ -1,6 +1,6 @@
-import { BrowserRouter, Routes, Route, Link} from "react-router-dom";
+import { BrowserRouter, Routes, Route} from "react-router-dom";
 import { ContextProvider, Context } from "../store/ContextProvider";
-import { useContext, useEffect} from "react";
+import { useContext} from "react";
 import { Navigate } from "react-router-dom";
 
 import LoginPage from "../pages/LoginPage";
@@ -11,6 +11,12 @@ import TracksPage from "../pages/TracksPage";
 import Header from "../components/Header";
 
 import "../styles/app.scss";
+import "../node_modules/@fortawesome/fontawesome-free/css/all.min.css";
+import "alertifyjs/build/css/alertify.min.css";
+import alertify from "alertifyjs";
+
+alertify.set("notifier","position", "top-right");
+alertify.set("notifier","delay", 2);
 
 function ProtectedRoute({ children }) {
     const { token, loading } = useContext(Context);
@@ -34,7 +40,7 @@ export default function App() {
                         <HomePage />
                     </ProtectedRoute>
                 } />
-                <Route path="tracks" element={
+                <Route path="/tracks" element={
                     <ProtectedRoute>
                         <TracksPage />
                     </ProtectedRoute>

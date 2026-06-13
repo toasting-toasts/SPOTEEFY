@@ -1,4 +1,4 @@
-import {createContext, useState, useEffect} from "react";
+import {createContext, useState, useEffect, useRef} from "react";
 
 export const Context = createContext(null);
 
@@ -6,6 +6,9 @@ export function ContextProvider({children}) {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [currentTrack, setCurrentTrack] = useState(null);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const audioRef = useRef(new Audio());
 
     useEffect(() => {
         const storedToken = localStorage.getItem("token");
@@ -37,6 +40,7 @@ export function ContextProvider({children}) {
     }
 
     const login = async (username, password) => {
+        setLoading(true);
         const response = await fetch("http://localhost:3000/auth/login", {
             method: "POST",
             headers: {
@@ -44,14 +48,19 @@ export function ContextProvider({children}) {
             },
             body: JSON.stringify({ username, password })
         });
-        if (!response.ok) {
-            throw new Error("Login failed");
-        }
+        
         const data = await response.json();
+
+        if (!response.ok) {
+            setLoading(false);
+            return {error: data.error || "Failed to deliver"}
+        }
+        
         setToken(data.token);
         localStorage.setItem("token", data.token);
         await fetchUser(data.token);
 
+        setLoading(false);
         return data;
     }
 
@@ -97,8 +106,7 @@ export function ContextProvider({children}) {
             console.error("Failed to fetch tracks");
             return;
         }
-        const data = await response.json();
-        return data.tracks;
+        return await response.json();
     }
 
     const submitTrack = async (formData) => {
@@ -119,10 +127,52 @@ export function ContextProvider({children}) {
         return data;
     }
 
+    const toggleTrack = (track) => {
+        const audio = audioRef.current;
+
+        fetch(`http://localhost:3000/audio/stream/${track.id}`, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error("Failed to fetch audio stream");
+            return response.blob();
+        })
+        .then(blob => audio.src = URL.createObjectURL(blob))
+
+        audio.onended = () => {
+            setIsPlaying(false);
+            setCurrentTrack(null);
+        }
+
+        if(isPlaying && currentTrack && currentTrack.id === track.id) {
+            audio.pause();
+            setIsPlaying(false);
+            return;
+        }
+
+        audio.play();
+        setCurrentTrack(track);
+        setIsPlaying(true);
+    };
+
+    const rateTrack = async (id) => {
+        const res = await fetch(`http://localhost:3000/tracks/${id}/rate`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        return await res.json();
+    };
+
     return (
         <Context.Provider value={{
-            token, user, loading, 
-            login, logout, register, fetchTracksData, submitTrack
+            token, user, loading, currentTrack, audioRef,
+            login, logout, register, fetchTracksData, submitTrack, setIsPlaying, toggleTrack, rateTrack
         }}>
             {children}
         </Context.Provider>

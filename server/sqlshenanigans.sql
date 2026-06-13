@@ -1,4 +1,4 @@
--- Active: 1780838486428@@127.0.0.1@3306@calendar
+-- Active: 1780235224396@@127.0.0.1@3306@spoteefy
 drop database if exists spoteefy;
 CREATE DATABASE IF NOT EXISTS spoteefy;
 USE spoteefy;
@@ -38,3 +38,5 @@ CREATE TABLE favourite_songs (
     FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(song_id) REFERENCES tracks(id)
 );
+
+insert into tracks values

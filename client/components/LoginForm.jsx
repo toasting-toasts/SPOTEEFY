@@ -3,22 +3,35 @@ import { useContext } from "react";
 import { Context } from "../store/ContextProvider";
 import { Link, useNavigate } from "react-router-dom";
 
+import "../styles/auth.scss";
+import alertify from "alertifyjs";
+
 export default function LoginPage() {
     const navigate = useNavigate();
     const { login } = useContext(Context);
     const [localUsername, setLocalUsername] = useState("");
-    const [localPassword, setLocalPassword] = useState("");
+    const [localPassword, setLocalPassword] = useState("");;
     
     const handleSumbit = async (e) => {
         e.preventDefault();
-        const result = await login(localUsername, localPassword);
 
-        if (result.error) {
-            alert(result.error); 
-            return;
-        } else {
-            alert(result.message);
+        try {
+            const result = await login(localUsername, localPassword);
+
+            if (!result) {
+                alertify.error("No response from server");
+                return;
+            }
+
+            if (result.error) {
+                alertify.error(result.error);
+                return;
+            }
+
+            alertify.success(result.message);
             navigate("/");
+        } catch (err) {
+            alertify.error("Network error");
         }
     }
 
@@ -38,9 +51,12 @@ export default function LoginPage() {
                 value={localPassword} onChange={(e) => setLocalPassword(e.target.value)} 
             />
 
-            <button type="submit">Login</button>
+            <button type="submit">Log in</button>
         </form>
-        <p>Don't have an account yet? </p>
-        <Link to="/register">Register here</Link>
-   </>)
+
+        <div className="auth-footer">
+            <span>Don't have an account yet? </span>
+            <Link to="/register">Register here</Link>
+        </div>
+    </>)
 }

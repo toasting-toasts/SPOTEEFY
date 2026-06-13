@@ -4,6 +4,7 @@ const db = require("./db.js")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
+const fs = require("fs");
 const path = require("path");
 const music_metadata = require("music-metadata");
 require("dotenv").config();
@@ -85,23 +86,23 @@ function validateLogin(username, password){
 }
 
 function validateAudioSubmission(files, body){
-    if(!files || !files.audio || files.audio.length === 0){
-        return {error: "Audio file is required"}
-    }
-    if(typeof body.title !== "string" || typeof body.author !== "string" || typeof body.description !== "string"){
-        return {error: "Internal server error"}
-    }
-    if(body.title.length === 0 || body.author.length === 0){
-        return {error: "Title and author are required"}
-    }
     if(body.title.length > 30){
         return {error: "Title must be smaller than 30 characters"}
     }
     if(body.author.length > 30){
         return {error: "Author must be smaller than 30 characters"}
     }
-    if(body.description.length > 500){
-        return {error: "Description must be smaller than 500 characters"}
+    if(body.description.length > 300){
+        return {error: "Description must be smaller than 300 characters"}
+    }
+    if(!files || !files.audio || files.audio.length === 0){
+        return {error: "Audio file is required"}
+    }
+    if(body.title.length === 0 || body.author.length === 0){
+        return {error: "Title and author are required"}
+    }
+    if(typeof body.title !== "string" || typeof body.author !== "string" || typeof body.description !== "string"){
+        return {error: "Internal server error"}
     }
     return null;
 }
@@ -155,7 +156,7 @@ async function uploadQuery(files, body, user){
         );
         return {message: "Files uploaded successfully", trackId: result.insertId};
     } catch (err) {
-        return {error: "Internal server error"};
+        return {error: "Internal server/database error"};
     }
 }
 function authenticateToken(req, res, next){
@@ -207,7 +208,7 @@ app.post(
     return res.json(uploadResult)
 })
 
-app.get("/tracks", async (req, res) => {
+app.get("/tracks", authenticateToken, async (req, res) => {
     const start = parseInt(req.query.start) || 0;
     const amount = parseInt(req.query.amount) || 20;
 
@@ -216,9 +217,73 @@ app.get("/tracks", async (req, res) => {
             "SELECT id, title, author, cover_path, duration_s, views, rating FROM tracks LIMIT ? OFFSET ?",
             [amount, start]
         );
-        return res.json({tracks});
+        const total = await db.query("SELECT COUNT(*) as count FROM tracks");
+        return res.json({tracks, total: total[0][0].count});
     } catch (err) {
-        return res.status(500).json({error: "Internal server error"});
+        return res.status(500).json({error: "Internal server/database error"});
+    }
+});
+
+app.get("/audio/stream/:id", authenticateToken, async (req, res) => {
+    const { id } = req.params;
+
+    const [[track]] = await db.query(
+        "SELECT audio_path FROM tracks WHERE id = ?",
+        [id]
+    );
+
+    if (!track) {
+        return res.status(404).send("Not found");
+    }
+
+    const filePath = path.join(__dirname, track.audio_path);
+
+    const stat = fs.statSync(filePath);
+    const fileSize = stat.size;
+
+    const range = req.headers.range;
+
+    if (!range) {
+        res.writeHead(200, {
+            "Content-Length": fileSize,
+            "Content-Type": "audio/mpeg"
+        });
+
+        fs.createReadStream(filePath).pipe(res);
+        return;
+    }
+
+    const parts = range.replace(/bytes=/, "").split("-");
+    const start = parseInt(parts[0], 10);
+    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+
+    const chunkSize = end - start + 1;
+
+    const stream = fs.createReadStream(filePath, { start, end });
+
+    res.writeHead(206, {
+        "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+        "Accept-Ranges": "bytes",
+        "Content-Length": chunkSize,
+        "Content-Type": "audio/mpeg"
+    });
+
+    stream.pipe(res);
+});
+
+app.post("/tracks/:id/rate", authenticateToken, async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        await db.query(
+            "UPDATE tracks SET rating = rating + 1 WHERE id = ?",
+            [id]
+        );
+
+        return res.json({ message: "Rated" });
+
+    } catch (err) {
+        return res.status(500).json({ error: "Internal server error" });
     }
 });
 

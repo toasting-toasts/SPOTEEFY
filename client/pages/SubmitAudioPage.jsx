@@ -1,26 +1,63 @@
 import { Context } from "../store/ContextProvider";
 import { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/upload.scss";
+import alertify from "alertifyjs";
 
 export default function SubmitAudioPage() {
+    const navigate = useNavigate();
     const { submitTrack } = useContext(Context);
 
     const [audio, setAudio] = useState(null);
     const [cover, setCover] = useState(null);
+    const [loading, setLoading] = useState(false);
 
-    const handleSubmit = async (e) => {
+    const handleSumbit = async (e) => {
         e.preventDefault();
 
-        const formData = new FormData();
+        setLoading(true);
 
-        if (audio) formData.append("audio", audio);
-        if (cover) formData.append("cover", cover);
+        try {
+            const formData = new FormData();
 
-        formData.append("title", e.target.title.value);
-        formData.append("author", e.target.author.value);
-        formData.append("description", e.target.description.value);
+            if (!audio) {
+                alertify.error("Please select an audio file");
+                setLoading(false);
+                return;
+            }
 
-        await submitTrack(formData);
+            formData.append("audio", audio);
+
+            if (cover) {
+                formData.append("cover", cover);
+            }
+
+            formData.append("title", e.target.title.value);
+            formData.append("author", e.target.author.value);
+            formData.append("description", e.target.description.value);
+
+            const result = await submitTrack(formData);
+
+            setAudio(null);
+            setCover(null);
+
+            if (result.error) {
+                alertify.error(result.error);
+                setLoading(false);
+                return;
+            }
+
+            alertify.success(result.message);
+
+            setTimeout(() => {
+                navigate("/");
+            }, 1000);
+
+        } catch (err) {
+            alertify.error("Network error");
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleDrop = (e, setter) => {
@@ -34,9 +71,18 @@ export default function SubmitAudioPage() {
         setCover(null);
     };
 
+    if (loading) {
+        return (
+            <div className="loading">
+                <div className="spinner"></div>
+                <p>Uploading track...</p>
+            </div>
+        );
+    }
+
     return (
         <div className="upload-page">
-            <form className="upload-container" onSubmit={handleSubmit}>
+            <form className="upload-container" onSubmit={handleSumbit}>
 
                 <div className="upload-media">
 
@@ -48,7 +94,6 @@ export default function SubmitAudioPage() {
                             <span>{audio.name}</span>
                         ) : (
                             <>
-                                <i className="fas fa-cloud-upload fa-3x icon"></i>
                                 <span>Audio</span>
                                 <input
                                     type="file"
@@ -90,12 +135,12 @@ export default function SubmitAudioPage() {
 
                     <h2>Upload track</h2>
 
-                    <input type="text" name="title" placeholder="Title" />
-                    <input type="text" name="author" placeholder="Author" />
+                    <input type="text" name="title" placeholder="Title" disabled={loading} />
+                    <input type="text" name="author" placeholder="Author" disabled={loading} />
                     <textarea name="description" placeholder="Description (optional)" />
                     
-                    <button type="button" className="clear-btn" onClick={handleClear}>Clear</button>
-                    <button type="submit">Submit</button>
+                    <button type="button" className="clear-btn" onClick={handleClear} disabled={loading} >Clear</button>
+                    <button type="submit" disabled={loading} >Submit</button>
                 </div>
 
             </form>

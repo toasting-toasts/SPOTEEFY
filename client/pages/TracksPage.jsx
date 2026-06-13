@@ -1,50 +1,123 @@
 import { useContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Context } from "../store/ContextProvider";
+import "../styles/tracks.scss";
 
-export default function TracksPage(props) {
-    const {fetchTracksData} = useContext(Context);
+export default function TracksPage() {
+    const { fetchTracksData, toggleTrack, rateTrack } = useContext(Context);
+    const navigate = useNavigate();
+
     const [tracks, setTracks] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+
+    const LIMIT = 20;
+
     useEffect(() => {
         const loadTracks = async () => {
-            const data = await fetchTracksData(0, 20);
+            setLoading(true);
+
+            const data = await fetchTracksData((page - 1) * LIMIT, LIMIT);
 
             if (data) {
-                setTracks(data);
+                setTracks(data.tracks || []);
+                setTotalPages(Math.ceil((data.total || 0) / LIMIT));
             }
 
             setLoading(false);
         };
 
         loadTracks();
-    }, []);
+    }, [page]);
 
     if (loading) {
-        return <p>Loading...</p>;
+        return (
+            <div className="tracks-loading">
+                <div className="spinner"></div>
+            </div>
+        );
     }
 
     return (
-        <>
-        <ul>
-            {tracks.map(track => (
-                <li key={track.id}>
-                    <img src={`http://localhost:3000${track.cover_path}`} alt={`${track.title} cover`}/>
+        <div className="tracks-page">
+            <div className="pagination">
+                <button
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                >
+                    Prev
+                </button>
 
-                    <div className="track-info">
-                        <h3>{track.title}</h3>
-                        <p>Author: {track.author}</p>
-                    </div>
-                    
-                    <p>{Math.floor(track.duration_s / 60)}:{String(track.duration_s % 60).padStart(2, '0')}</p>
+                <span>
+                    Page {page} / {totalPages}
+                </span>
 
-                    <div className="rating">
-                        <p>Listens: {track.views}</p>
-                        <p>Rating: {track.rating}</p>
-                    </div>
-                </li>
-            ))}
-        </ul>
-        </>
+                <button
+                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                >
+                    Next
+                </button>
+            </div>
+
+            <ul className="tracks-list">
+                {tracks.map(track => (
+                    <li
+                        className="track-card"
+                        key={track.id}
+                        onClick={() => navigate(`/track/${track.id}`)}
+                    >
+
+                        <img
+                            className="track-cover"
+                            src={`http://localhost:3000${track.cover_path}`}
+                            alt={`${track.title} cover`}
+                        />
+
+                        <div className="track-info">
+                            <h3>{track.title}</h3>
+                            <p>{track.author}</p>
+
+                            <div className="track-meta">
+                                <span>
+                                    {Math.floor(track.duration_s / 60)}:
+                                    {String(track.duration_s % 60).padStart(2, "0")}
+                                </span>
+
+                                <span>Views: {track.views}</span>
+                                <span>Rating: {track.rating}</span>
+                            </div>
+                        </div>
+
+                        <div className="track-actions">
+
+                            <button
+                                className="play-btn"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleTrack(track);
+                                }}
+                            >
+                                ▶
+                            </button>
+
+                            <button
+                                className="rate-btn"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    rateTrack(track.id);
+                                }}
+                            >
+                                👍
+                            </button>
+
+                        </div>
+
+                    </li>
+                ))}
+            </ul>
+        </div>
     );
 }
