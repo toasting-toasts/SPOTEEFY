@@ -9,6 +9,7 @@ import SubmitAudioPage from "../pages/SubmitAudioPage";
 import HomePage from "../pages/HomePage";
 import TracksPage from "../pages/TracksPage";
 import Header from "../components/Header";
+import PlayerBar from "../components/PlayerBar";
 
 import "../styles/app.scss";
 import "../node_modules/@fortawesome/fontawesome-free/css/all.min.css";
@@ -31,6 +32,7 @@ export default function App() {
         <BrowserRouter>
 
         <Header/>
+        
         <main>
             <Routes>
                 <Route path="/login" element={<LoginPage />} />
@@ -52,6 +54,9 @@ export default function App() {
                 } />
             </Routes>
         </main>
+
+        <PlayerBar/>
+
         </BrowserRouter>
         </ContextProvider>
     );

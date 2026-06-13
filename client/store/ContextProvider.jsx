@@ -127,33 +127,31 @@ export function ContextProvider({children}) {
         return data;
     }
 
-    const toggleTrack = (track) => {
+    const handleTrack = async (track) => {
         const audio = audioRef.current;
-
-        fetch(`http://localhost:3000/audio/stream/${track.id}`, {
-            method: "GET",
-            headers: {
-                "Authorization": `Bearer ${token}`
+        
+        if (currentTrack?.id === track.id) {
+            if (audio.paused) {
+                await audio.play();
+                setIsPlaying(true);
+            } else {
+                audio.pause();
+                setIsPlaying(false);
             }
-        })
-        .then(response => {
-            if (!response.ok) throw new Error("Failed to fetch audio stream");
-            return response.blob();
-        })
-        .then(blob => audio.src = URL.createObjectURL(blob))
-
-        audio.onended = () => {
-            setIsPlaying(false);
-            setCurrentTrack(null);
-        }
-
-        if(isPlaying && currentTrack && currentTrack.id === track.id) {
-            audio.pause();
-            setIsPlaying(false);
             return;
         }
-
-        audio.play();
+    
+        audio.pause();
+    
+        audio.src = `http://localhost:3000/audio/stream/${track.id}`;
+    
+        audio.onended = () => {
+            setIsPlaying(false);
+            setCurrentTrack(null)
+        };
+    
+        await audio.play();
+    
         setCurrentTrack(track);
         setIsPlaying(true);
     };
@@ -171,8 +169,8 @@ export function ContextProvider({children}) {
 
     return (
         <Context.Provider value={{
-            token, user, loading, currentTrack, audioRef,
-            login, logout, register, fetchTracksData, submitTrack, setIsPlaying, toggleTrack, rateTrack
+            token, user, loading, currentTrack, audioRef, isPlaying,
+            login, logout, register, fetchTracksData, submitTrack, setIsPlaying, handleTrack, rateTrack
         }}>
             {children}
         </Context.Provider>

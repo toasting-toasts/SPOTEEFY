@@ -208,7 +208,8 @@ app.post(
     return res.json(uploadResult)
 })
 
-app.get("/tracks", authenticateToken, async (req, res) => {
+app.get("/tracks", authenticateToken,
+    async (req, res) => {
     const start = parseInt(req.query.start) || 0;
     const amount = parseInt(req.query.amount) || 20;
 
@@ -217,14 +218,14 @@ app.get("/tracks", authenticateToken, async (req, res) => {
             "SELECT id, title, author, cover_path, duration_s, views, rating FROM tracks LIMIT ? OFFSET ?",
             [amount, start]
         );
-        const total = await db.query("SELECT COUNT(*) as count FROM tracks");
-        return res.json({tracks, total: total[0][0].count});
+        const [[{total}]] = await db.query("SELECT COUNT(*) as count FROM tracks");
+        return res.json({tracks, total: total});
     } catch (err) {
         return res.status(500).json({error: "Internal server/database error"});
     }
 });
 
-app.get("/audio/stream/:id", authenticateToken, async (req, res) => {
+app.get("/audio/stream/:id", async (req, res) => {
     const { id } = req.params;
 
     const [[track]] = await db.query(
@@ -236,7 +237,7 @@ app.get("/audio/stream/:id", authenticateToken, async (req, res) => {
         return res.status(404).send("Not found");
     }
 
-    const filePath = path.join(__dirname, track.audio_path);
+    const filePath = path.join(__dirname, "/static", track.audio_path);
 
     const stat = fs.statSync(filePath);
     const fileSize = stat.size;

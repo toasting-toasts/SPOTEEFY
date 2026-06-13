@@ -4,7 +4,7 @@ import { Context } from "../store/ContextProvider";
 import "../styles/tracks.scss";
 
 export default function TracksPage() {
-    const { fetchTracksData, toggleTrack, rateTrack } = useContext(Context);
+    const { fetchTracksData, handleTrack, rateTrack, isPlaying, currentTrack } = useContext(Context);
     const navigate = useNavigate();
 
     const [tracks, setTracks] = useState([]);
@@ -93,14 +93,16 @@ export default function TracksPage() {
 
                         <div className="track-actions">
 
-                            <button
+                            <button 
                                 className="play-btn"
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    toggleTrack(track);
+                                    handleTrack(track);
                                 }}
                             >
-                                ▶
+                                {currentTrack?.id===track.id && isPlaying  ?
+                                <i className="fa-solid fa-pause"></i>               :
+                                <i className="fa-solid fa-play"></i>}
                             </button>
 
                             <button
@@ -110,7 +112,16 @@ export default function TracksPage() {
                                     rateTrack(track.id);
                                 }}
                             >
-                                👍
+                                <i className="fa-solid fa-thumbs-up"></i>
+                            </button>
+                            <button
+                                className="save-btn"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    // saveFavorite(track.id);
+                                }}
+                            >
+                                <i className="fa-solid fa-floppy-disk"></i>
                             </button>
 
                         </div>
