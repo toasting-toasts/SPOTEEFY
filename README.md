@@ -11,8 +11,8 @@ git clone https://github.com/toasting-toasts/SPOTEEFY.git
 Потім відкрийте дві командні строки в папці server та client та пропишіть:
 ```
 npm i
-npm run dev        // у папці серверу
-npm run dev -- --host // у папці клієнта
+node --watch server.js // у папці серверу
+npx vite --host        // у папці клієнта
 ```
 як показано знизу:
 
