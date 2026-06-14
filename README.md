@@ -12,7 +12,7 @@ git clone https://github.com/toasting-toasts/SPOTEEFY.git
 ```
 npm i
 npm run dev        // у папці серверу
-npm run dev --host // у папці клієнта
+npm run dev -- --host // у папці клієнта
 ```
 як показано знизу:
 
