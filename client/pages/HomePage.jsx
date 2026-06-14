@@ -16,8 +16,8 @@ export default function HomePage() {
                 <h1 className="title">Spoteefy</h1>
 
                 <p className="subtitle">
-                    This is not Spotify, this is SPOTEEFY {/* GENERIC AI TYPE SHIT */}
-                </p>
+                    This is not just Spotify, this is SPOTEEFY {/* GENERIC AI TYPE SHIT */}
+                </p> {/*це доречі жарт*/}
 
                 <div className="stats">
                     <div className="stat">

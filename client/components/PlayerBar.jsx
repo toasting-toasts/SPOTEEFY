@@ -1,5 +1,6 @@
 import { useContext, useState, useEffect } from "react";
 import { Context } from "../store/ContextProvider";
+import { useNavigate } from "react-router";
 
 import "../styles/player.scss";
 
@@ -10,12 +11,14 @@ export default function PlayerBar() {
         isPlaying,
         setIsPlaying,
         setCurrentTrack,
-        handleTrack
+        handleTrack,
+        fetchTrack
     } = useContext(Context);
 
     const [duration, setDuration] = useState(0);
     const [progress, setProgress] = useState(0);
     const audio = audioRef.current;
+    const navigate = useNavigate()
 
     
 
@@ -54,9 +57,16 @@ export default function PlayerBar() {
         audio.currentTime = 0;
     };
 
-    const nextTrack = () => {
-        // placeholder for now (you'll later connect playlist logic)
-        console.log("next track");
+    const nextTrack = async () => {
+        let track = await fetchTrack(currentTrack.id + 1);
+
+        if (!track) {
+            track = await fetchTrack(1);
+        }
+
+        if (track) {
+            handleTrack(track);
+        }
     };
 
     const formatTime = (seconds) => {
@@ -69,7 +79,7 @@ export default function PlayerBar() {
     if (!currentTrack) return null;
     
     return (
-        <div className="player-bar">
+        <div className="player-bar" onClick={()=>navigate(`/track/${currentTrack.id}`)}>
             <div className="player-info">
 
                 <img className="cover" src={`http://localhost:3000${currentTrack.cover_path}`} alt="" />

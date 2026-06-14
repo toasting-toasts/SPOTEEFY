@@ -21,9 +21,6 @@ dist-ssr
 *.sln
 *.sw?
 
-.env
-sqlshenanigans.sql
+
 ssh.txt
 ssh.txt.pub
-audio/
-covers/
