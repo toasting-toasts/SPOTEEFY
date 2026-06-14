@@ -2,35 +2,46 @@ import { useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Context } from "../store/ContextProvider";
 import "../styles/tracks.scss";
+import alertify from "alertifyjs";
 
 export default function TracksPage() {
-    const { fetchTracksData, handleTrack, rateTrack, isPlaying, currentTrack } = useContext(Context);
+    const { fetchTracksData, handleTrack, rateTrack, isPlaying, currentTrack, tracks } = useContext(Context);
     const navigate = useNavigate();
-
-    const [tracks, setTracks] = useState([]);
     const [loading, setLoading] = useState(true);
-
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-
-    const LIMIT = 20;
+    const [LIMIT, setLimit] = useState(5);
+    const [amountInput, setAmountInput] = useState("5");
 
     useEffect(() => {
         const loadTracks = async () => {
             setLoading(true);
-
+        
             const data = await fetchTracksData((page - 1) * LIMIT, LIMIT);
-
+        
             if (data) {
-                setTracks(data.tracks || []);
-                setTotalPages(Math.ceil((data.total || 0) / LIMIT));
+                setTotalPages(Math.ceil(data.total / LIMIT));
             }
-
+        
             setLoading(false);
         };
-
+    
         loadTracks();
-    }, [page]);
+    }, [page, LIMIT]);
+
+
+    const applyLimit = () => {
+        const num = Number(amountInput);
+
+        if (!Number.isInteger(num) || num <= 0 || num > totalPages*LIMIT) {
+            alertify.error("Wrong limit(not an integer or too big)");
+            return;
+        }
+
+        setLimit(num);
+        setPage(1);
+    };
+
 
     if (loading) {
         return (
@@ -60,6 +71,18 @@ export default function TracksPage() {
                 >
                     Next
                 </button>
+                <div className="amount-control">
+                <input
+                    type="text"
+                    value={amountInput}
+                    onChange={(e) => (setAmountInput(e.target.value))}
+                    placeholder="Amount per page"
+                />
+
+                <button onClick={applyLimit}>
+                    Apply
+                </button>
+            </div>
             </div>
 
             <ul className="tracks-list">
@@ -114,15 +137,15 @@ export default function TracksPage() {
                             >
                                 <i className="fa-solid fa-thumbs-up"></i>
                             </button>
-                            <button
+                            {/* <button
                                 className="save-btn"
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    // saveFavorite(track.id);
+                                    saveTrack(track.id)
                                 }}
                             >
                                 <i className="fa-solid fa-floppy-disk"></i>
-                            </button>
+                            </button> */}
 
                         </div>
 

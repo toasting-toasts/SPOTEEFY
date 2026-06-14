@@ -1,6 +1,7 @@
 import { useState, useContext } from "react";
 import { Context } from "../store/ContextProvider";
 import {Link, useNavigate} from "react-router-dom";
+import alertify from "alertifyjs";
 
 export default function RegisterForm(){
     const {register} = useContext(Context);
@@ -13,11 +14,13 @@ export default function RegisterForm(){
         e.preventDefault();
         const result = await register(localEmail, localUsername, localPassword);
 
+        if(!result) alertify.error("No response from server")
+
         if (result.error) {
-            alert(result.error); 
+            alertify.error(result.error); 
             return;
         } else {
-            alert(result.message);
+            alertify.success(result.message);
             navigate("/");
         }
     }
@@ -49,7 +52,9 @@ export default function RegisterForm(){
             
             <button type="submit">Register</button>
         </form>
-        <p>Already have an account? </p>
-        <Link to="/login">Login here</Link>
+        <div className="auth-footer">
+            <span>Alredy have existing account?</span>
+            <Link to="/login">Log in here</Link>
+        </div>
     </>)
 }

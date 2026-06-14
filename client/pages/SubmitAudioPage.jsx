@@ -50,7 +50,7 @@ export default function SubmitAudioPage() {
             alertify.success(result.message);
 
             setTimeout(() => {
-                navigate("/");
+                navigate("/tracks");
             }, 1000);
 
         } catch (err) {

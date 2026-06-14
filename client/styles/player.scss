@@ -3,7 +3,7 @@
     bottom: 0;
     left: 0;
 
-    width: 100%;
+    width: 100vw;
     height: 72px;
 
     background: #111;
@@ -15,52 +15,96 @@
 
     padding: 0 20px;
 
-    z-index: 999;
-}
+    z-index: 10;
 
-.player-info {
-    display: flex;
-    flex-direction: column;
-
-    .title {
-        font-weight: 600;
-        font-size: 14px;
+    .player-info,
+    .player-controls,
+    .player-seek {
+        width: 33.33%;
     }
 
-    .author {
-        font-size: 12px;
-        color: #888;
-    }
-}
+    .player-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
 
-.player-controls {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+        .cover {
+            width: 56px;
+            height: 56px;
 
-    button {
-        background: none;
-        border: none;
-        color: white;
+            object-fit: cover;
 
-        cursor: pointer;
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
 
-        font-size: 16px;
+        .track-meta {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
 
-        transition: 0.15s;
+            .title,
+            .author {
+                margin: 0;
+            }
 
-        &:hover {
-            transform: scale(1.1);
-            color: #1db954;
+            .title {
+                font-family: 'Courier New', Courier, monospace;
+                font-weight: 700;
+                font-size: 1.1rem;
+
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                color: white;
+            }
+
+            .author {
+                font-size: 0.9rem;
+                opacity: 0.7;
+            }
         }
     }
-}
 
-.player-seek {
-    width: 250px;
+    .player-controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
 
-    input[type="range"] {
-        width: 100%;
-        accent-color: #1db954;
+        button {
+            border: none;
+            background: none;
+            cursor: pointer;
+
+            font-size: 1.2rem;
+
+            &:nth-child(2) {
+                font-size: 1.5rem;
+            }
+        }
+    }
+
+    .player-seek {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 0.75rem;
+
+        input[type="range"] {
+            max-width: 220px;
+            width: 30%;
+        }
+
+        .player-time {
+            min-width: 90px;
+
+            display: flex;
+            justify-content: center;
+            gap: 0.25rem;
+
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
     }
 }

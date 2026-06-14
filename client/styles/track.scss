@@ -1,0 +1,121 @@
+.track-page {
+    display: flex;
+    justify-content: center;
+    padding: 60px 20px;
+    color: white;
+    background: #0b0b0b;
+    min-height: 80vh;
+}
+
+.track-container {
+    display: flex;
+    gap: 50px;
+
+    background: #121212;
+    border: 1px solid #1e1e1e;
+    border-radius: 14px;
+
+    width: 950px;
+    min-height: 420px;
+
+    padding: 30px;
+}
+
+.track-left {
+    display: flex;
+    align-items: center;
+    img {
+        width: 320px;
+        height: 320px;
+        border-radius: 12px;
+        object-fit: cover;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+}
+
+.track-right {
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+    h1 {
+        font-size: 28px;
+        margin-bottom: 6px;
+    }
+    h3 {
+        color: #aaa;
+        font-weight: 400;
+        margin-bottom: 20px;
+    }
+}
+
+.description {
+    color: #cfcfcf;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.meta {
+    display: flex;
+    gap: 18px;
+
+    color: #888;
+    font-size: 14px;
+}
+
+.action-div {
+    display: flex;
+    gap: 12px;
+
+    margin-top: 20px;
+    flex-grow: 1;
+    align-self: flex-start;
+    align-items: end;
+    margin-bottom: 6%;
+}
+
+.action-div button {
+    height: 30%;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    font-weight: 600;
+    font-size: 14px;
+
+    transition: 0.2s ease;
+
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+
+.action-div button:first-child {
+    background: #1db954;
+    color: white;
+}
+
+.action-div button:first-child:hover {
+    background: #1ed760; 
+}
+
+/* SECONDARY BUTTONS */
+.action-div button:nth-child(2),
+.action-div button:nth-child(3) {
+    background: #1a1a1a;
+    color: #ddd;
+    border: 1px solid #2a2a2a;
+}
+
+.action-div button:nth-child(2):hover,
+.action-div button:nth-child(3):hover {
+    background: #232323;
+    border-color: #3a3a3a;
+}
+
+.action-div button:active {
+    transform: scale(0.98);
+}

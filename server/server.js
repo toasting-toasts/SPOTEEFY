@@ -218,12 +218,30 @@ app.get("/tracks", authenticateToken,
             "SELECT id, title, author, cover_path, duration_s, views, rating FROM tracks LIMIT ? OFFSET ?",
             [amount, start]
         );
-        const [[{total}]] = await db.query("SELECT COUNT(*) as count FROM tracks");
-        return res.json({tracks, total: total});
+        const [[{count}]] = await db.query("SELECT COUNT(*) as count FROM tracks");
+        return res.json({total: count, tracks});
     } catch (err) {
         return res.status(500).json({error: "Internal server/database error"});
     }
 });
+
+app.get("/audio/:id", async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const [rows] = await db.query(
+        "SELECT * FROM tracks WHERE id = ?",
+        [id]);
+
+        const track=rows[0];
+        
+        if (!track) {
+            return res.status(404).send("Not found");
+        }
+
+        return res.json(track);
+    } catch { return res.status(500).send("Internal server error") }
+})
 
 app.get("/audio/stream/:id", async (req, res) => {
     const { id } = req.params;
@@ -273,15 +291,43 @@ app.get("/audio/stream/:id", async (req, res) => {
 });
 
 app.post("/tracks/:id/rate", authenticateToken, async (req, res) => {
+    const userId = req.user.id;
+    const trackId = req.params.id;
+
+    try {
+        await db.query(
+            "INSERT INTO track_ratings (user_id, track_id) VALUES (?, ?)",
+            [userId, trackId]
+        );
+
+        await db.query(
+            "UPDATE tracks SET rating = rating + 1 WHERE id = ?",
+            [trackId]
+        );
+
+        return res.json({ message: "Rated" });
+
+    } catch (err) {
+        if (err.code === "ER_DUP_ENTRY") {
+            return res.status(400).json({
+                error: "You already rated this track"
+            });
+        }
+
+        return res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+app.post("/tracks/:id/view", authenticateToken, async (req, res) => {
     const { id } = req.params;
 
     try {
         await db.query(
-            "UPDATE tracks SET rating = rating + 1 WHERE id = ?",
+            "UPDATE tracks SET views = views + 1 WHERE id = ?",
             [id]
         );
 
-        return res.json({ message: "Rated" });
+        return res.json({ message: "Successful" });
 
     } catch (err) {
         return res.status(500).json({ error: "Internal server error" });

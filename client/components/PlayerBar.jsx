@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import { Context } from "../store/ContextProvider";
 
 import "../styles/player.scss";
@@ -9,25 +9,45 @@ export default function PlayerBar() {
         currentTrack,
         isPlaying,
         setIsPlaying,
-        setCurrentTrack
+        setCurrentTrack,
+        handleTrack
     } = useContext(Context);
 
+    const [duration, setDuration] = useState(0);
+    const [progress, setProgress] = useState(0);
     const audio = audioRef.current;
 
-    if (!currentTrack) return null;
+    
+
+    useEffect(() => {
+        if (!audio) return;
+
+        const handleLoadedMetadata = () => {
+            setDuration(audio.duration);
+        };
+
+        const handleTimeUpdate = () => {
+            setProgress(audio.currentTime);
+        };
+
+        audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+        audio.addEventListener("timeupdate", handleTimeUpdate);
+
+        return () => {
+            audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+            audio.removeEventListener("timeupdate", handleTimeUpdate);
+        };
+    }, [audio]);
 
     const togglePlay = () => {
-        if (audio.paused) {
-            audio.play();
-            setIsPlaying(true);
-        } else {
-            audio.pause();
-            setIsPlaying(false);
-        }
+        handleTrack(currentTrack)
     };
 
     const seek = (e) => {
-        audio.currentTime = (e.target.value / 100) * audio.duration;
+        const time = Number(e.target.value);
+
+        audio.currentTime = time;
+        setProgress(time);
     };
 
     const restart = () => {
@@ -39,12 +59,25 @@ export default function PlayerBar() {
         console.log("next track");
     };
 
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+
+        return `${mins}:${secs.toString().padStart(2, "0")}`;
+    };
+
+    if (!currentTrack) return null;
+    
     return (
         <div className="player-bar">
-
             <div className="player-info">
-                <p className="title">{currentTrack.title}</p>
-                <p className="author">{currentTrack.author}</p>
+
+                <img className="cover" src={`http://localhost:3000${currentTrack.cover_path}`} alt="" />
+
+                <div className="track-meta">
+                    <p className="title">{currentTrack.title}</p>
+                    <p className="author">{currentTrack.author}</p>
+                </div>
             </div>
 
             <div className="player-controls">
@@ -70,10 +103,16 @@ export default function PlayerBar() {
                 <input
                     type="range"
                     min="0"
-                    max="100"
-                    value = {0}
+                    max={duration || 0}
+                    value={progress}
                     onChange={seek}
                 />
+
+                <div className="player-time">
+                    <span>{formatTime(progress)}</span>
+                    /
+                    <span>{formatTime(duration)}</span>
+                </div>
             </div>
 
         </div>

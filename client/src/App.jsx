@@ -10,6 +10,7 @@ import HomePage from "../pages/HomePage";
 import TracksPage from "../pages/TracksPage";
 import Header from "../components/Header";
 import PlayerBar from "../components/PlayerBar";
+import TrackPage from "../pages/TrackPage"
 
 import "../styles/app.scss";
 import "../node_modules/@fortawesome/fontawesome-free/css/all.min.css";
@@ -37,14 +38,15 @@ export default function App() {
             <Routes>
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
-                <Route path="/" element={
-                    <ProtectedRoute>
-                        <HomePage />
-                    </ProtectedRoute>
-                } />
+                <Route path="/" element={<HomePage />} />
                 <Route path="/tracks" element={
                     <ProtectedRoute>
                         <TracksPage />
+                    </ProtectedRoute>
+                } />
+                <Route path="/track/:id" element={
+                    <ProtectedRoute>
+                        <TrackPage />
                     </ProtectedRoute>
                 } />
                 <Route path="/submit-audio" element={
